@@ -4,7 +4,6 @@ An interactive AI safety and cyber hygiene app for the public, with a stronger A
 
 Creator: Anthony Onoja  
 School of Health Sciences, University of Surrey, United Kingdom  
-Support: https://paypal.me/Onoja412
 
 ## What changed
 
