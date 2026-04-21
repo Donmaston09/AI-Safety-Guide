@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Safety Guide — Secure Our World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --shield: #1a1a2e;
+  --deep: #16213e;
+  --mid: #0f3460;
+  --accent: #e94560;
+  --gold: #f5a623;
+  --teal: #00d4aa;
+  --soft: #a8b2d8;
+  --light: #ccd6f6;
+  --white: #e6f1ff;
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(168,178,216,0.15);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--shield);color:var(--light);font-family:var(--font-body);font-size:15px;line-height:1.7;overflow-x:hidden;min-height:100vh}
+
+/* Animated background */
+.bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.15;animation:orbFloat 12s ease-in-out infinite}
+.orb-1{width:500px;height:500px;background:#e94560;top:-100px;right:-100px;animation-delay:0s}
+.orb-2{width:400px;height:400px;background:#0f3460;bottom:-50px;left:-50px;animation-delay:4s}
+.orb-3{width:300px;height:300px;background:#00d4aa;top:40%;left:30%;animation-delay:8s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,30px) scale(0.95)}}
+
+/* Layout */
+.app{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 20px 80px}
+
+/* Hero */
+.hero{padding:60px 0 40px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);border-radius:50px;padding:6px 16px;font-size:12px;font-family:var(--font-display);letter-spacing:0.08em;color:var(--teal);margin-bottom:24px;animation:fadeSlideDown 0.6s ease both}
+.hero-shield{font-size:48px;display:block;margin-bottom:16px;animation:shieldPulse 3s ease-in-out infinite}
+@keyframes shieldPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0px rgba(0,212,170,0))}50%{transform:scale(1.05);filter:drop-shadow(0 0 20px rgba(0,212,170,0.5))}}
+.hero h1{font-family:var(--font-display);font-size:clamp(32px,6vw,56px);font-weight:800;line-height:1.1;margin-bottom:16px;background:linear-gradient(135deg,var(--white),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fadeSlideDown 0.7s 0.1s ease both;opacity:0}
+.hero p{font-size:17px;color:var(--soft);max-width:560px;margin:0 auto 32px;font-weight:300;animation:fadeSlideDown 0.7s 0.2s ease both;opacity:0}
+@keyframes fadeSlideDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+
+/* Language selector */
+.lang-bar{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:40px;animation:fadeSlideDown 0.7s 0.3s ease both;opacity:0}
+.lang-btn{padding:6px 14px;border-radius:50px;border:1px solid var(--card-border);background:var(--card-bg);color:var(--soft);font-size:13px;font-family:var(--font-body);cursor:pointer;transition:all 0.2s;backdrop-filter:blur(10px)}
+.lang-btn:hover,.lang-btn.active{border-color:var(--teal);color:var(--teal);background:rgba(0,212,170,0.08)}
+
+/* Progress */
+.progress-wrap{background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:20px 24px;margin-bottom:32px;border:1px solid var(--card-border);backdrop-filter:blur(10px);animation:fadeSlideDown 0.7s 0.4s ease both;opacity:0}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.progress-title{font-family:var(--font-display);font-size:14px;font-weight:600;color:var(--light)}
+.progress-pct{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--teal)}
+.progress-track{height:6px;background:rgba(255,255,255,0.08);border-radius:50px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),#00a88a);border-radius:50px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);width:0%}
+.progress-steps{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.p-step{font-size:11px;padding:3px 10px;border-radius:50px;border:1px solid var(--card-border);color:var(--soft);transition:all 0.3s}
+.p-step.done{border-color:var(--teal);color:var(--teal);background:rgba(0,212,170,0.08)}
+
+/* Nav tabs */
+.nav{display:flex;gap:6px;margin-bottom:28px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:50px;border:1px solid var(--card-border);background:var(--card-bg);color:var(--soft);font-size:14px;font-family:var(--font-display);font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.25s;backdrop-filter:blur(10px)}
+.nav-btn .nav-icon{font-size:16px}
+.nav-btn:hover{border-color:rgba(168,178,216,0.4);color:var(--light)}
+.nav-btn.active{background:rgba(0,212,170,0.12);border-color:rgba(0,212,170,0.5);color:var(--teal)}
+
+/* Sections */
+.section{display:none;animation:sectionIn 0.4s ease both}
+.section.active{display:block}
+@keyframes sectionIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Tip cards */
+.tip-grid{display:grid;gap:16px}
+.tip-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+.tip-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.02));pointer-events:none}
+.tip-card:hover{border-color:rgba(168,178,216,0.35);transform:translateY(-2px)}
+.tip-card.open{border-color:rgba(0,212,170,0.4);background:rgba(0,212,170,0.04)}
+.tip-card-accent{position:absolute;top:0;left:0;width:4px;height:100%;border-radius:16px 0 0 16px;transition:height 0.3s}
+.tip-header{display:flex;align-items:flex-start;gap:16px}
+.tip-emoji-wrap{position:relative;flex-shrink:0}
+.tip-emoji{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative;z-index:1}
+.tip-emoji-ring{position:absolute;inset:-4px;border-radius:18px;border:2px solid transparent;transition:all 0.3s}
+.tip-card.open .tip-emoji-ring{border-color:rgba(0,212,170,0.5);animation:ringPulse 2s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:0.7}}
+.tip-meta{flex:1}
+.tip-num{font-size:11px;font-family:var(--font-display);letter-spacing:0.1em;color:var(--soft);opacity:0.6;margin-bottom:4px}
+.tip-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--white);margin-bottom:6px}
+.tip-summary{font-size:14px;color:var(--soft);font-weight:300}
+.tip-chevron{margin-left:auto;font-size:20px;color:var(--soft);transition:transform 0.3s;flex-shrink:0}
+.tip-card.open .tip-chevron{transform:rotate(180deg);color:var(--teal)}
+.tip-body{display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--card-border)}
+.tip-card.open .tip-body{display:block;animation:bodyIn 0.3s ease}
+@keyframes bodyIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.tip-body p{color:var(--soft);font-weight:300;margin-bottom:14px;font-size:15px}
+.tip-callout{background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);border-radius:var(--radius-sm);padding:14px 18px;margin:14px 0}
+.tip-callout-label{font-size:11px;font-family:var(--font-display);letter-spacing:0.1em;color:var(--teal);font-weight:700;margin-bottom:6px}
+.tip-callout p{color:var(--light);margin:0;font-size:14px}
+.tip-examples{margin-top:14px}
+.tip-examples-title{font-size:12px;font-family:var(--font-display);letter-spacing:0.08em;color:var(--soft);opacity:0.7;margin-bottom:10px}
+.tip-example{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.tip-example:last-child{border-bottom:none}
+.tip-example-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:8px}
+.tip-example span{font-size:13px;color:var(--soft);font-weight:300}
+.tip-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn-small{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:50px;font-size:13px;font-family:var(--font-display);font-weight:600;cursor:pointer;transition:all 0.2s;border:none}
+.btn-outline{background:transparent;border:1px solid var(--card-border);color:var(--soft)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-teal{background:rgba(0,212,170,0.15);border:1px solid rgba(0,212,170,0.3);color:var(--teal)}
+.btn-teal:hover{background:rgba(0,212,170,0.25)}
+.btn-accent{background:rgba(233,69,96,0.15);border:1px solid rgba(233,69,96,0.3);color:var(--accent)}
+.btn-accent:hover{background:rgba(233,69,96,0.25)}
+
+/* Checklist */
+.check-section-title{font-family:var(--font-display);font-size:12px;letter-spacing:0.12em;color:var(--soft);opacity:0.6;text-transform:uppercase;margin:24px 0 12px;padding-left:4px}
+.check-item{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:all 0.25s;backdrop-filter:blur(10px)}
+.check-item:hover{border-color:rgba(168,178,216,0.3)}
+.check-item.done{background:rgba(0,212,170,0.05);border-color:rgba(0,212,170,0.25)}
+.check-box{width:24px;height:24px;border-radius:7px;border:2px solid rgba(168,178,216,0.3);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.25s;margin-top:1px}
+.check-item.done .check-box{background:var(--teal);border-color:var(--teal)}
+.check-tick{opacity:0;transform:scale(0);transition:all 0.2s;font-size:13px;color:#fff}
+.check-item.done .check-tick{opacity:1;transform:scale(1)}
+.check-label{font-size:14px;color:var(--light);line-height:1.5;transition:all 0.2s}
+.check-item.done .check-label{color:var(--soft);text-decoration:line-through;text-decoration-color:rgba(168,178,216,0.4)}
+.check-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:16px;text-align:center;backdrop-filter:blur(10px)}
+.stat-num{font-family:var(--font-display);font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--teal),var(--white));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:12px;color:var(--soft);margin-top:4px}
+
+/* Quiz */
+.quiz-wrap{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:28px;backdrop-filter:blur(10px)}
+.quiz-progress{display:flex;gap:6px;margin-bottom:24px}
+.quiz-dot{height:4px;flex:1;border-radius:50px;background:rgba(255,255,255,0.1);transition:background 0.3s}
+.quiz-dot.done{background:var(--teal)}
+.quiz-dot.current{background:var(--gold);animation:dotPulse 1.5s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.quiz-q-num{font-size:12px;font-family:var(--font-display);letter-spacing:0.1em;color:var(--soft);opacity:0.6;margin-bottom:10px}
+.quiz-q{font-family:var(--font-display);font-size:19px;font-weight:700;color:var(--white);line-height:1.4;margin-bottom:24px}
+.quiz-options{display:grid;gap:10px;margin-bottom:18px}
+.quiz-opt{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;text-align:left;width:100%}
+.quiz-opt:hover:not([disabled]){border-color:rgba(168,178,216,0.4);background:rgba(255,255,255,0.06)}
+.quiz-opt[disabled]{cursor:default}
+.quiz-opt.correct{border-color:rgba(0,212,170,0.6);background:rgba(0,212,170,0.08)}
+.quiz-opt.wrong{border-color:rgba(233,69,96,0.5);background:rgba(233,69,96,0.06)}
+.opt-letter{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--soft);flex-shrink:0;transition:all 0.2s}
+.quiz-opt.correct .opt-letter{background:rgba(0,212,170,0.2);border-color:var(--teal);color:var(--teal)}
+.quiz-opt.wrong .opt-letter{background:rgba(233,69,96,0.2);border-color:var(--accent);color:var(--accent)}
+.opt-text{font-size:14px;color:var(--light);line-height:1.5;padding-top:4px}
+.quiz-feedback{padding:16px 20px;border-radius:var(--radius-sm);margin-top:4px;display:none;animation:bodyIn 0.3s ease}
+.quiz-feedback.show{display:block}
+.quiz-feedback.good{background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.25)}
+.quiz-feedback.good p{color:var(--teal)}
+.quiz-feedback.bad{background:rgba(233,69,96,0.06);border:1px solid rgba(233,69,96,0.2)}
+.quiz-feedback.bad p{color:#ff8fa3}
+.quiz-feedback-icon{font-size:20px;margin-bottom:8px}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.quiz-score-display{font-size:13px;color:var(--soft)}
+.btn-main{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:50px;font-size:14px;font-family:var(--font-display);font-weight:700;cursor:pointer;transition:all 0.25s;border:none;background:linear-gradient(135deg,var(--teal),#00a88a);color:#fff}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,212,170,0.3)}
+.btn-main:active{transform:scale(0.97)}
+.btn-ghost{background:transparent;border:1px solid var(--card-border);color:var(--soft);padding:12px 24px;border-radius:50px;font-size:14px;font-family:var(--font-display);font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn-ghost:hover{border-color:var(--soft);color:var(--light)}
+.score-final{text-align:center;padding:20px 0}
+.score-ring{width:120px;height:120px;margin:0 auto 20px;position:relative}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--teal)}
+.score-title{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--white);margin-bottom:8px}
+.score-sub{font-size:15px;color:var(--soft);margin-bottom:24px}
+
+/* AI Q&A */
+.qa-wrap{display:flex;flex-direction:column;gap:16px}
+.chat-area{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;min-height:360px;max-height:500px;overflow-y:auto;backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.chat-area::-webkit-scrollbar{width:4px}
+.chat-area::-webkit-scrollbar-track{background:transparent}
+.chat-area::-webkit-scrollbar-thumb{background:rgba(168,178,216,0.2);border-radius:2px}
+.msg{display:flex;gap:12px;animation:msgIn 0.3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.msg-avatar.user-av{background:rgba(245,166,35,0.2);border:1px solid rgba(245,166,35,0.3)}
+.msg-avatar.ai-av{background:rgba(0,212,170,0.2);border:1px solid rgba(0,212,170,0.3)}
+.msg-bubble{background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:14px;padding:12px 16px;font-size:14px;color:var(--light);line-height:1.7;max-width:calc(100% - 50px)}
+.msg.user .msg-bubble{background:rgba(245,166,35,0.06);border-color:rgba(245,166,35,0.2)}
+.msg.ai .msg-bubble{background:rgba(0,212,170,0.04);border-color:rgba(0,212,170,0.15)}
+.typing-indicator{display:flex;gap:5px;padding:4px 0;align-items:center}
+.typing-dot{width:7px;height:7px;background:var(--teal);border-radius:50%;animation:typingBounce 1.2s ease-in-out infinite}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes typingBounce{0%,100%{transform:translateY(0);opacity:0.4}50%{transform:translateY(-6px);opacity:1}}
+.qa-input-row{display:flex;gap:10px;align-items:flex-end}
+.qa-input{flex:1;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:12px 16px;color:var(--light);font-size:14px;font-family:var(--font-body);resize:none;min-height:48px;max-height:120px;transition:border-color 0.2s;backdrop-filter:blur(10px)}
+.qa-input::placeholder{color:rgba(168,178,216,0.4)}
+.qa-input:focus{outline:none;border-color:rgba(0,212,170,0.4)}
+.qa-send{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#00a88a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all 0.2s;flex-shrink:0}
+.qa-send:hover{transform:scale(1.08);box-shadow:0 4px 16px rgba(0,212,170,0.3)}
+.qa-send:disabled{opacity:0.4;cursor:default;transform:none;box-shadow:none}
+.qa-suggestions{display:flex;gap:8px;flex-wrap:wrap}
+.qa-suggest{padding:7px 14px;border-radius:50px;border:1px solid var(--card-border);background:var(--card-bg);color:var(--soft);font-size:12px;font-family:var(--font-display);cursor:pointer;transition:all 0.2s;backdrop-filter:blur(10px)}
+.qa-suggest:hover{border-color:rgba(0,212,170,0.4);color:var(--teal);background:rgba(0,212,170,0.06)}
+.section-label{font-size:12px;font-family:var(--font-display);letter-spacing:0.1em;color:var(--soft);opacity:0.6;margin-bottom:12px;text-transform:uppercase}
+
+/* Core 4 */
+.core4-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.core4-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:22px;text-align:center;backdrop-filter:blur(10px);transition:all 0.3s;position:relative;overflow:hidden}
+.core4-card:hover{transform:translateY(-3px);border-color:rgba(168,178,216,0.35)}
+.core4-anim{font-size:40px;margin-bottom:14px;display:block;animation:floatIcon 3s ease-in-out infinite}
+.core4-card:nth-child(2) .core4-anim{animation-delay:0.7s}
+.core4-card:nth-child(3) .core4-anim{animation-delay:1.4s}
+.core4-card:nth-child(4) .core4-anim{animation-delay:2.1s}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.core4-title{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--white);margin-bottom:8px}
+.core4-desc{font-size:13px;color:var(--soft);font-weight:300;line-height:1.6}
+.core4-link{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:12px;color:var(--teal);font-family:var(--font-display);text-decoration:none;transition:gap 0.2s}
+.core4-link:hover{gap:10px}
+
+/* Trainer mode */
+.trainer-header{background:rgba(233,69,96,0.06);border:1px solid rgba(233,69,96,0.2);border-radius:var(--radius);padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px}
+.trainer-icon{font-size:32px}
+.trainer-header h3{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px}
+.trainer-header p{font-size:13px;color:var(--soft)}
+.session-cards{display:grid;gap:12px}
+.session-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:18px 22px;backdrop-filter:blur(10px)}
+.session-card h4{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--light);margin-bottom:4px}
+.session-card p{font-size:13px;color:var(--soft);margin-bottom:12px}
+.session-meta{display:flex;gap:12px;flex-wrap:wrap}
+.meta-tag{padding:4px 12px;border-radius:50px;font-size:11px;font-family:var(--font-display);font-weight:600;letter-spacing:0.05em}
+.tag-green{background:rgba(0,212,170,0.1);color:var(--teal);border:1px solid rgba(0,212,170,0.2)}
+.tag-gold{background:rgba(245,166,35,0.1);color:var(--gold);border:1px solid rgba(245,166,35,0.2)}
+.tag-red{background:rgba(233,69,96,0.1);color:var(--accent);border:1px solid rgba(233,69,96,0.2)}
+
+/* Share modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:20px}
+.modal-overlay.open{display:flex;animation:modalIn 0.3s ease}
+@keyframes modalIn{from{opacity:0}to{opacity:1}}
+.modal{background:#1a1a2e;border:1px solid var(--card-border);border-radius:var(--radius);max-width:480px;width:100%;overflow:hidden;animation:modalSlide 0.3s ease}
+@keyframes modalSlide{from{transform:scale(0.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--white)}
+.modal-close{background:none;border:none;color:var(--soft);font-size:22px;cursor:pointer;line-height:1}
+.modal-body{padding:20px 24px 24px}
+.share-preview{border-radius:var(--radius-sm);padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.share-preview::before{content:'🛡️ AI Safety Guide';position:absolute;top:12px;right:16px;font-size:11px;font-family:var(--font-display);letter-spacing:0.06em;opacity:0.6;color:#fff}
+.share-title{font-family:var(--font-display);font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;line-height:1.2}
+.share-body{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;margin-bottom:12px}
+.share-tag{display:inline-block;padding:4px 12px;border-radius:50px;background:rgba(255,255,255,0.15);font-size:11px;font-family:var(--font-display);color:#fff;font-weight:600}
+.share-btns{display:flex;gap:10px;flex-wrap:wrap}
+.share-btn{flex:1;min-width:120px;padding:10px 16px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,0.04);color:var(--light);font-size:13px;font-family:var(--font-display);font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.share-btn:hover{background:rgba(255,255,255,0.1)}
+.share-btn.copied{border-color:var(--teal);color:var(--teal)}
+
+/* Responsive */
+@media(max-width:600px){
+  .core4-grid{grid-template-columns:1fr}
+  .check-stats{grid-template-columns:repeat(3,1fr)}
+  .insight-grid,.provider-grid,.api-help,.scenario-grid,.footer-card{grid-template-columns:1fr}
+  .api-input-row{flex-direction:column}
+}
+
+/* Notification */
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a2e;border:1px solid rgba(0,212,170,0.4);border-radius:50px;padding:12px 24px;font-family:var(--font-display);font-size:14px;color:var(--teal);z-index:9999;transition:transform 0.3s ease;pointer-events:none;white-space:nowrap}
+.notif.show{transform:translateX(-50%) translateY(0)}
+
+/* Insight cards */
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px}
+.insight-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;backdrop-filter:blur(10px)}
+.insight-kicker{font-size:11px;font-family:var(--font-display);letter-spacing:0.1em;color:var(--teal);margin-bottom:8px}
+.insight-card h3{font-family:var(--font-display);font-size:17px;color:var(--white);margin-bottom:8px}
+.insight-card p{font-size:13px;color:var(--soft)}
+
+/* AI key panel */
+.api-banner{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.25);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--gold);display:flex;align-items:flex-start;gap:10px}
+.provider-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.provider-btn{padding:14px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:var(--card-bg);color:var(--soft);cursor:pointer;text-align:left;transition:all 0.2s}
+.provider-btn:hover{border-color:rgba(168,178,216,0.35);transform:translateY(-1px)}
+.provider-btn.active{border-color:rgba(0,212,170,0.5);background:rgba(0,212,170,0.08);color:var(--light)}
+.provider-name{display:block;font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:4px}
+.provider-meta{display:block;font-size:12px;opacity:0.8}
+.api-panel{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;backdrop-filter:blur(10px)}
+.api-input-row{display:flex;gap:8px;margin:12px 0}
+.api-input{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--light);font-size:13px;font-family:var(--font-body)}
+.api-input:focus{outline:none;border-color:rgba(0,212,170,0.4)}
+.api-actions{display:flex;gap:8px;flex-wrap:wrap}
+.api-save-btn{padding:10px 18px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--teal),#00a88a);border:none;color:#fff;font-size:13px;font-family:var(--font-display);font-weight:700;cursor:pointer}
+.api-clear-btn{padding:10px 18px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--card-border);color:var(--soft);font-size:13px;font-family:var(--font-display);font-weight:700;cursor:pointer}
+.api-help{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.api-help a{display:block;text-decoration:none;background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:14px;color:var(--light);font-size:13px}
+.api-help a span{display:block;font-family:var(--font-display);font-size:13px;font-weight:700;margin-bottom:4px}
+.api-status{margin-top:12px;font-size:12px;color:var(--soft)}
+
+/* Community lab */
+.community-wrap{display:grid;gap:16px}
+.community-header{background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.18);border-radius:var(--radius);padding:20px}
+.community-header h3{font-family:var(--font-display);font-size:18px;color:var(--white);margin-bottom:8px}
+.community-header p{font-size:14px;color:var(--soft)}
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.scenario-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;backdrop-filter:blur(10px)}
+.scenario-tag{display:inline-flex;padding:4px 10px;border-radius:50px;font-size:11px;font-family:var(--font-display);background:rgba(233,69,96,0.12);color:var(--accent);margin-bottom:10px}
+.scenario-card h4{font-family:var(--font-display);font-size:16px;color:var(--white);margin-bottom:8px}
+.scenario-card p{font-size:13px;color:var(--soft);margin-bottom:12px}
+
+/* Footer */
+.footer-card{margin-top:32px;background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:var(--radius);padding:22px;display:grid;grid-template-columns:2fr 1fr;gap:18px;backdrop-filter:blur(10px)}
+.footer-card h3{font-family:var(--font-display);font-size:18px;color:var(--white);margin-bottom:8px}
+.footer-card p,.footer-card a{font-size:14px;color:var(--soft)}
+.footer-card a{color:var(--teal);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="bg-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- Notification toast -->
+<div class="notif" id="notif">✓ Copied to clipboard</div>
+
+<!-- Share modal -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Share this tip</h3>
+      <button class="modal-close" onclick="closeShare()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="share-preview" id="sharePreview">
+        <div class="share-title" id="shareTitle"></div>
+        <div class="share-body" id="shareBody"></div>
+        <span class="share-tag" id="shareTag"></span>
+      </div>
+      <div class="share-btns">
+        <button class="share-btn" onclick="copyShareText()" id="copyBtn">📋 Copy text</button>
+        <button class="share-btn" onclick="shareToX()">𝕏 Share on X</button>
+        <button class="share-btn" onclick="shareToLinkedIn()">in Share</button>
+        <button class="share-btn" onclick="shareToWhatsApp()">💬 WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app">
+  <div class="hero">
+    <div class="hero-badge">🛡️ Secure Our World · CISA</div>
+    <span class="hero-shield" id="heroShield">🛡️</span>
+    <h1 id="hero-title">AI Safety Guide</h1>
+    <p id="hero-sub">Stay safe and informed when using AI tools online. Work through tips, complete your checklist, and test your knowledge.</p>
+
+    <div class="lang-bar" id="langBar">
+      <button class="lang-btn active" onclick="setLang('en',this)">🇬🇧 English</button>
+      <button class="lang-btn" onclick="setLang('fr',this)">🇫🇷 Français</button>
+      <button class="lang-btn" onclick="setLang('es',this)">🇪🇸 Español</button>
+      <button class="lang-btn" onclick="setLang('de',this)">🇩🇪 Deutsch</button>
+      <button class="lang-btn" onclick="setLang('ar',this)">🇸🇦 العربية</button>
+      <button class="lang-btn" onclick="setLang('zh',this)">🇨🇳 中文</button>
+      <button class="lang-btn" onclick="setLang('pt',this)">🇧🇷 Português</button>
+      <button class="lang-btn" onclick="setLang('sw',this)">🌍 Kiswahili</button>
+      <button class="lang-btn" onclick="setLang('ha',this)">🇳🇬 Hausa</button>
+      <button class="lang-btn" onclick="setLang('yo',this)">🇳🇬 Yoruba</button>
+      <button class="lang-btn" onclick="setLang('ig',this)">🇳🇬 Igbo</button>
+    </div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-kicker" data-i18n="insight_1_kicker">WHY NOW</div>
+      <h3 data-i18n="insight_1_title">Move beyond generic AI tips</h3>
+      <p data-i18n="insight_1_body">This edition focuses on practical risks people actually meet in chats, search, voice notes, and social messaging, not abstract AI ethics alone.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-kicker" data-i18n="insight_2_kicker">AFRICA FIRST</div>
+      <h3 data-i18n="insight_2_title">Built for multilingual community outreach</h3>
+      <p data-i18n="insight_2_body">Kiswahili, Hausa, Yoruba, and Igbo support make the app easier to use in workshops, schools, and public awareness campaigns across African communities.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-kicker" data-i18n="insight_3_kicker">BRING YOUR OWN AI</div>
+      <h3 data-i18n="insight_3_title">Let users continue the conversation</h3>
+      <p data-i18n="insight_3_body">People can connect their own Gemini, OpenAI, or Anthropic key for follow-up questions while keeping the educational experience inside one app.</p>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <span class="progress-title" id="prog-title">Your Safety Progress</span>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill"></div>
+    </div>
+    <div class="progress-steps">
+      <span class="p-step" id="ps-tips">💡 Tips read</span>
+      <span class="p-step" id="ps-check">✅ Checklist</span>
+      <span class="p-step" id="ps-quiz">🧠 Quiz done</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('tips',this)"><span class="nav-icon">💡</span><span data-i18n="nav_tips">Tips</span></button>
+    <button class="nav-btn" onclick="showTab('checklist',this)"><span class="nav-icon">✅</span><span data-i18n="nav_check">Checklist</span></button>
+    <button class="nav-btn" onclick="showTab('quiz',this)"><span class="nav-icon">🧠</span><span data-i18n="nav_quiz">Quiz</span></button>
+    <button class="nav-btn" onclick="showTab('ai',this)"><span class="nav-icon">🤖</span><span data-i18n="nav_ai">Ask AI</span></button>
+    <button class="nav-btn" onclick="showTab('community',this)"><span class="nav-icon">🌍</span><span data-i18n="nav_community">Community</span></button>
+    <button class="nav-btn" onclick="showTab('core4',this)"><span class="nav-icon">🔐</span><span data-i18n="nav_core4">Core 4</span></button>
+    <button class="nav-btn" onclick="showTab('trainer',this)"><span class="nav-icon">📋</span><span data-i18n="nav_trainer">Trainer</span></button>
+  </div>
+
+  <!-- TIPS -->
+  <div class="section active" id="tab-tips">
+    <div class="tip-grid" id="tipGrid"></div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="section" id="tab-checklist">
+    <div class="check-stats">
+      <div class="stat-card"><div class="stat-num" id="stat-done">0</div><div class="stat-label">Completed</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total items</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-pct">0%</div><div class="stat-label">Progress</div></div>
+    </div>
+    <div id="checkContainer"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section" id="tab-quiz">
+    <div class="quiz-wrap" id="quizContainer"></div>
+  </div>
+
+  <!-- ASK AI -->
+  <div class="section" id="tab-ai">
+    <div class="qa-wrap">
+      <div class="api-banner" id="apiBanner">
+        <span>⚠️</span>
+        <div data-i18n="api_banner">Use your own Gemini, OpenAI, or Anthropic key for personal testing. Keys saved in the browser are convenient, but they are not suitable for public production deployments.</div>
+      </div>
+      <div class="provider-grid" id="providerGrid">
+        <button class="provider-btn active" onclick="setProvider('anthropic',this)">
+          <span class="provider-name">Anthropic</span>
+          <span class="provider-meta">Claude for concise safety guidance</span>
+        </button>
+        <button class="provider-btn" onclick="setProvider('openai',this)">
+          <span class="provider-name">OpenAI</span>
+          <span class="provider-meta">Fast follow-up chat</span>
+        </button>
+        <button class="provider-btn" onclick="setProvider('gemini',this)">
+          <span class="provider-name">Gemini</span>
+          <span class="provider-meta">Google AI Studio key</span>
+        </button>
+      </div>
+      <div class="api-panel">
+        <div class="section-label" data-i18n="api_setup_label">Provider setup</div>
+        <div id="providerIntro">Use your own Anthropic key to continue the conversation inside this app.</div>
+        <div class="api-input-row" id="apiInputRow">
+          <input class="api-input" type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." />
+        </div>
+        <div class="api-actions">
+          <button class="api-save-btn" onclick="saveCurrentKey()" data-i18n="api_save">Save key</button>
+          <button class="api-clear-btn" onclick="clearCurrentKey()" data-i18n="api_clear">Clear key</button>
+        </div>
+        <div class="api-status" id="apiStatus">No key saved for the current provider.</div>
+        <div class="api-help">
+          <a href="https://docs.anthropic.com/en/api/getting-started" target="_blank" rel="noreferrer">
+            <span>Anthropic key</span>
+            Open Console or docs and create an API key in your account settings.
+          </a>
+          <a href="https://help.openai.com/en/articles/4936850-how-to-create-and-use-an-api-key" target="_blank" rel="noreferrer">
+            <span>OpenAI key</span>
+            Use the API keys page in the developer platform and keep the secret private.
+          </a>
+          <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noreferrer">
+            <span>Gemini key</span>
+            Create and manage keys in Google AI Studio for Gemini API access.
+          </a>
+        </div>
+      </div>
+      <div class="section-label" data-i18n="conversation_label">Conversation</div>
+      <div class="chat-area" id="chatArea">
+        <div class="msg ai">
+          <div class="msg-avatar ai-av">🤖</div>
+          <div class="msg-bubble" id="welcomeBubble">Hello! I'm your AI Safety Guide assistant. Ask me anything about staying safe when using AI tools online — deepfakes, data privacy, phishing, passwords, or anything else from this guide. What would you like to know?</div>
+        </div>
+      </div>
+      <div class="section-label" style="margin-top:16px" data-i18n="suggested_label">Suggested questions</div>
+      <div class="qa-suggestions" id="qaSuggestions"></div>
+      <div class="qa-input-row" style="margin-top:12px">
+        <textarea class="qa-input" id="qaInput" placeholder="Ask a question about AI safety..." rows="1"></textarea>
+        <button class="qa-send" onclick="sendMsg()" id="qaSendBtn">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMUNITY -->
+  <div class="section" id="tab-community">
+    <div class="community-wrap">
+      <div class="community-header">
+        <h3 data-i18n="community_title">Community Safety Lab</h3>
+        <p data-i18n="community_sub">Use these Africa-relevant scenarios to spark discussion in schools, public workshops, youth programmes, and health education settings.</p>
+      </div>
+      <div class="scenario-grid" id="scenarioGrid"></div>
+    </div>
+  </div>
+
+  <!-- CORE 4 -->
+  <div class="section" id="tab-core4">
+    <div class="core4-grid">
+      <div class="core4-card">
+        <span class="core4-anim">🔑</span>
+        <div class="core4-title">Strong passwords</div>
+        <div class="core4-desc">Use long, unique passwords for every account. A password manager makes this effortless — one master password secures everything else.</div>
+        <a class="core4-link" href="https://cisa.gov/SecureOurWorld" target="_blank">Learn more →</a>
+      </div>
+      <div class="core4-card">
+        <span class="core4-anim">📱</span>
+        <div class="core4-title">Turn on MFA</div>
+        <div class="core4-desc">Multi-factor authentication adds a second check. Even if a criminal steals your password, they still cannot access your account.</div>
+        <a class="core4-link" href="https://cisa.gov/SecureOurWorld" target="_blank">Learn more →</a>
+      </div>
+      <div class="core4-card">
+        <span class="core4-anim">🔄</span>
+        <div class="core4-title">Keep software updated</div>
+        <div class="core4-desc">Updates patch security holes. Enable automatic updates so you're never exposed by a known vulnerability criminals can exploit.</div>
+        <a class="core4-link" href="https://cisa.gov/SecureOurWorld" target="_blank">Learn more →</a>
+      </div>
+      <div class="core4-card">
+        <span class="core4-anim">🎣</span>
+        <div class="core4-title">Watch for phishing</div>
+        <div class="core4-desc">AI now helps criminals write convincing fake messages with perfect spelling. Pause before clicking links — verify senders independently.</div>
+        <a class="core4-link" href="https://cisa.gov/SecureOurWorld" target="_blank">Learn more →</a>
+      </div>
+    </div>
+    <div class="session-card" style="text-align:center">
+      <p style="font-size:14px;color:var(--soft);margin-bottom:12px">These behaviours are recommended by CISA — the Cybersecurity and Infrastructure Security Agency</p>
+      <a href="https://cisa.gov/SecureOurWorld" target="_blank" class="btn-main" style="text-decoration:none;display:inline-flex">Visit cisa.gov/SecureOurWorld →</a>
+    </div>
+  </div>
+
+  <!-- TRAINER -->
+  <div class="section" id="tab-trainer">
+    <div class="trainer-header">
+      <span class="trainer-icon">📋</span>
+      <div>
+        <h3>Facilitator / Trainer Mode</h3>
+        <p>Ready-made sessions for organisations, schools, and community workshops.</p>
+      </div>
+    </div>
+    <div class="session-cards">
+      <div class="session-card">
+        <h4>Session 1 — Introduction to AI Safety (30 min)</h4>
+        <p>Covers what AI is, why it matters for personal safety, and the concept of digital footprint. Suitable for beginners with no technical background.</p>
+        <div class="session-meta">
+          <span class="meta-tag tag-green">Beginner</span>
+          <span class="meta-tag tag-gold">30 min</span>
+          <span class="meta-tag tag-green">Any audience</span>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-small btn-teal" onclick="downloadSession(1)">⬇ Download slides</button>
+          <button class="btn-small btn-outline" onclick="generateFacilitatorNotes(1)">🤖 AI facilitator notes</button>
+        </div>
+      </div>
+      <div class="session-card">
+        <h4>Session 2 — Recognising AI-Powered Threats (45 min)</h4>
+        <p>Deep dive into deepfakes, voice cloning, phishing, and social engineering. Includes live demos and a practical spotting exercise.</p>
+        <div class="session-meta">
+          <span class="meta-tag tag-gold">Intermediate</span>
+          <span class="meta-tag tag-gold">45 min</span>
+          <span class="meta-tag tag-green">Adults / workplace</span>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-small btn-teal" onclick="downloadSession(2)">⬇ Download slides</button>
+          <button class="btn-small btn-outline" onclick="generateFacilitatorNotes(2)">🤖 AI facilitator notes</button>
+        </div>
+      </div>
+      <div class="session-card">
+        <h4>Session 3 — Core 4 Behaviours Workshop (60 min)</h4>
+        <p>Hands-on workshop where participants set up a password manager, enable MFA, and practise identifying phishing attempts in group exercises.</p>
+        <div class="session-meta">
+          <span class="meta-tag tag-red">Hands-on</span>
+          <span class="meta-tag tag-red">60 min</span>
+          <span class="meta-tag tag-gold">Bring devices</span>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-small btn-teal" onclick="downloadSession(3)">⬇ Download slides</button>
+          <button class="btn-small btn-outline" onclick="generateFacilitatorNotes(3)">🤖 AI facilitator notes</button>
+        </div>
+      </div>
+      <div class="session-card" style="border-color:rgba(0,212,170,0.25);background:rgba(0,212,170,0.04)">
+        <h4>Generate custom session with AI</h4>
+        <p>Describe your audience, duration, and learning goals — the AI will draft a tailored session plan, facilitator notes, and discussion questions.</p>
+        <div style="margin-top:14px">
+          <textarea class="qa-input" id="customSession" placeholder="e.g. 20 elderly community members, 45 minutes, focus on phone scams and deepfake video calls..." style="width:100%;margin-bottom:10px"></textarea>
+          <button class="btn-main" onclick="generateCustomSession()">🤖 Generate session plan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-card">
+    <div>
+      <h3 data-i18n="creator_title">Creator</h3>
+      <p>Anthony Onoja</p>
+      <p>School of Health Sciences, University of Surrey, United Kingdom</p>
+    </div>
+    <div>
+      <h3 data-i18n="support_title">Support</h3>
+      <a href="https://paypal.me/Onoja412" target="_blank" rel="noreferrer">paypal.me/Onoja412</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const i18n = {
+  en: {
+    hero_title: "AI Safety Guide",
+    hero_sub: "Stay safe and informed when using AI tools online. Work through tips, complete your checklist, and test your knowledge.",
+    prog_title: "Your Safety Progress",
+    nav_tips: "Tips", nav_check: "Checklist", nav_quiz: "Quiz", nav_ai: "Ask AI", nav_community: "Community", nav_core4: "Core 4", nav_trainer: "Trainer",
+    insight_1_kicker: "WHY NOW", insight_1_title: "Move beyond generic AI tips", insight_1_body: "This edition focuses on practical risks people actually meet in chats, search, voice notes, and social messaging, not abstract AI ethics alone.",
+    insight_2_kicker: "AFRICA FIRST", insight_2_title: "Built for multilingual community outreach", insight_2_body: "Kiswahili, Hausa, Yoruba, and Igbo support make the app easier to use in workshops, schools, and public awareness campaigns across African communities.",
+    insight_3_kicker: "BRING YOUR OWN AI", insight_3_title: "Let users continue the conversation", insight_3_body: "People can connect their own Gemini, OpenAI, or Anthropic key for follow-up questions while keeping the educational experience inside one app.",
+    api_banner: "Use your own Gemini, OpenAI, or Anthropic key for personal testing. Keys saved in the browser are convenient, but they are not suitable for public production deployments.",
+    api_setup_label: "Provider setup", api_save: "Save key", api_clear: "Clear key",
+    conversation_label: "Conversation", suggested_label: "Suggested questions",
+    community_title: "Community Safety Lab", community_sub: "Use these Africa-relevant scenarios to spark discussion in schools, public workshops, youth programmes, and health education settings.",
+    creator_title: "Creator", support_title: "Support"
+  },
+  fr: { hero_title: "Guide de Sécurité IA", hero_sub: "Restez en sécurité et informé lors de l'utilisation des outils IA en ligne.", prog_title: "Votre progression", nav_tips: "Conseils", nav_check: "Liste", nav_quiz: "Quiz", nav_ai: "Demander IA", nav_community: "Communauté", nav_core4: "Noyau 4", nav_trainer: "Formateur", api_setup_label: "Configuration", api_save: "Enregistrer", api_clear: "Effacer", conversation_label: "Conversation", suggested_label: "Questions suggérées", community_title: "Laboratoire communautaire", community_sub: "Scénarios adaptés aux ateliers et à la sensibilisation.", creator_title: "Créateur", support_title: "Soutien" },
+  es: { hero_title: "Guía de Seguridad IA", hero_sub: "Mantente seguro e informado al usar herramientas de IA en línea.", prog_title: "Tu progreso de seguridad", nav_tips: "Consejos", nav_check: "Lista", nav_quiz: "Quiz", nav_ai: "Preguntar IA", nav_community: "Comunidad", nav_core4: "Los 4", nav_trainer: "Formador", api_setup_label: "Configuración", api_save: "Guardar", api_clear: "Borrar", conversation_label: "Conversación", suggested_label: "Preguntas sugeridas", community_title: "Laboratorio comunitario", community_sub: "Escenarios para talleres y campañas públicas.", creator_title: "Creador", support_title: "Apoyo" },
+  de: { hero_title: "KI-Sicherheitsleitfaden", hero_sub: "Bleib sicher und informiert beim Umgang mit KI-Tools online.", prog_title: "Ihr Sicherheitsfortschritt", nav_tips: "Tipps", nav_check: "Checkliste", nav_quiz: "Quiz", nav_ai: "KI fragen", nav_community: "Community", nav_core4: "Kern 4", nav_trainer: "Trainer", api_setup_label: "Einrichtung", api_save: "Speichern", api_clear: "Löschen", conversation_label: "Gespräch", suggested_label: "Vorschläge", community_title: "Community-Labor", community_sub: "Szenarien für Workshops und Aufklärung.", creator_title: "Autor", support_title: "Support" },
+  ar: { hero_title: "دليل أمان الذكاء الاصطناعي", hero_sub: "ابقَ آمناً ومطلعاً عند استخدام أدوات الذكاء الاصطناعي عبر الإنترنت.", prog_title: "تقدمك الأمني", nav_tips: "نصائح", nav_check: "قائمة", nav_quiz: "اختبار", nav_ai: "اسأل الذكاء", nav_community: "المجتمع", nav_core4: "الأساسيات", nav_trainer: "مدرب", api_setup_label: "إعداد المزود", api_save: "حفظ", api_clear: "مسح", conversation_label: "المحادثة", suggested_label: "أسئلة مقترحة", community_title: "مختبر المجتمع", community_sub: "سيناريوهات للورش والتوعية العامة.", creator_title: "المنشئ", support_title: "الدعم" },
+  zh: { hero_title: "AI安全指南", hero_sub: "在线使用AI工具时保持安全和知情。", prog_title: "您的安全进度", nav_tips: "提示", nav_check: "清单", nav_quiz: "测验", nav_ai: "问AI", nav_community: "社区", nav_core4: "四项核心", nav_trainer: "培训师", api_setup_label: "提供商设置", api_save: "保存", api_clear: "清除", conversation_label: "对话", suggested_label: "推荐问题", community_title: "社区安全实验室", community_sub: "适合讲座、学校和社区活动的情景。", creator_title: "创建者", support_title: "支持" },
+  pt: { hero_title: "Guia de Segurança IA", hero_sub: "Fique seguro e informado ao usar ferramentas de IA online.", prog_title: "Seu progresso de segurança", nav_tips: "Dicas", nav_check: "Lista", nav_quiz: "Quiz", nav_ai: "Perguntar IA", nav_community: "Comunidade", nav_core4: "4 Pilares", nav_trainer: "Treinador", api_setup_label: "Configuração", api_save: "Guardar", api_clear: "Limpar", conversation_label: "Conversa", suggested_label: "Perguntas sugeridas", community_title: "Laboratório comunitário", community_sub: "Cenários para oficinas e campanhas públicas.", creator_title: "Criador", support_title: "Apoio" },
+  sw: { hero_title: "Mwongozo wa Usalama wa AI", hero_sub: "Kaa salama na kufahamu unapotumia zana za AI mtandaoni.", prog_title: "Maendeleo yako ya usalama", nav_tips: "Vidokezo", nav_check: "Orodha", nav_quiz: "Mtihani", nav_ai: "Uliza AI", nav_community: "Jamii", nav_core4: "Msingi 4", nav_trainer: "Mkufunzi", insight_2_title: "Imejengwa kwa uhamasishaji wa lugha nyingi", api_setup_label: "Mpangilio wa mtoa huduma", api_save: "Hifadhi", api_clear: "Futa", conversation_label: "Mazungumzo", suggested_label: "Maswali yaliyopendekezwa", community_title: "Maabara ya Usalama wa Jamii", community_sub: "Mifano ya vitisho inayofaa warsha na elimu ya umma.", creator_title: "Muundaji", support_title: "Msaada" },
+  ha: { hero_title: "Jagorar Tsaron AI", hero_sub: "Ka kasance cikin tsaro yayin amfani da kayan aikin AI a yanar gizo.", prog_title: "Ci gaban tsaronka", nav_tips: "Shawarwari", nav_check: "Jerin dubawa", nav_quiz: "Gwaji", nav_ai: "Tambayi AI", nav_community: "Al'umma", nav_core4: "Muhimman 4", nav_trainer: "Mai horaswa", insight_2_title: "An tsara shi don wayar da kan al'umma da harsuna da yawa", api_setup_label: "Saitin mai bada sabis", api_save: "Ajiye", api_clear: "Goge", conversation_label: "Tattaunawa", suggested_label: "Tambayoyin shawara", community_title: "Dakin gwajin tsaron al'umma", community_sub: "Misalai masu dacewa da tarurruka da wayar da kai.", creator_title: "Mai kirkira", support_title: "Tallafi" },
+  yo: { hero_title: "Itosona Aabo AI", hero_sub: "Duro lailewu nigba lilo awon irinse AI lori ayelujara.", prog_title: "Ilosiwaju aabo re", nav_tips: "Awon imoran", nav_check: "Atokọ ayewo", nav_quiz: "Idanwo", nav_ai: "Beere AI", nav_community: "Agbegbe", nav_core4: "Mẹrin Pataki", nav_trainer: "Olukoni", insight_2_title: "A ko fun ipolongo agbegbe to ni ede pupọ", api_setup_label: "Eto olupese", api_save: "Fipamọ", api_clear: "Pa rẹ", conversation_label: "Ibaraẹnisọrọ", suggested_label: "Awon ibeere aba", community_title: "Yara idanwo aabo agbegbe", community_sub: "Awon apeere fun idanileko ati ipolongo ita gbangba.", creator_title: "Oludasile", support_title: "Atilẹyin" },
+  ig: { hero_title: "Ntuziaka Nchekwa AI", hero_sub: "Nọgide na nchekwa mgbe ị na-eji ngwaọrụ AI n'ịntanetị.", prog_title: "Ọganihu nchekwa gị", nav_tips: "Ndụmọdụ", nav_check: "Ndepụta nyocha", nav_quiz: "Ajụjụ", nav_ai: "Jụọ AI", nav_community: "Obodo", nav_core4: "Isi 4", nav_trainer: "Onye nkuzi", insight_2_title: "E wuru ya maka mgbasa ozi obodo n'asụsụ dị iche iche", api_setup_label: "Nhazi onye na-enye ọrụ", api_save: "Chekwaa", api_clear: "Hichapụ", conversation_label: "Mkparịta ụka", suggested_label: "Ajụjụ aro", community_title: "Ụlọ nyocha nchekwa obodo", community_sub: "Ihe atụ bara uru maka ụlọ akwụkwọ na mmemme obodo.", creator_title: "Onye okike", support_title: "Nkwado" }
+};
+
+const providerConfigs = {
+  anthropic: {
+    label: 'Anthropic',
+    placeholder: 'sk-ant-api03-...',
+    intro: 'Use your own Anthropic key to continue the conversation inside this app.',
+    saved: 'Anthropic key saved in this browser.',
+    empty: 'No Anthropic key saved in this browser.'
+  },
+  openai: {
+    label: 'OpenAI',
+    placeholder: 'sk-proj-...',
+    intro: 'Use your own OpenAI key for a faster follow-up assistant experience.',
+    saved: 'OpenAI key saved in this browser.',
+    empty: 'No OpenAI key saved in this browser.'
+  },
+  gemini: {
+    label: 'Gemini',
+    placeholder: 'AIza...',
+    intro: 'Use your Google AI Studio Gemini key to ask follow-up questions here.',
+    saved: 'Gemini key saved in this browser.',
+    empty: 'No Gemini key saved in this browser.'
+  }
+};
+
+const localizedSuggestions = {
+  en: ['What is a deepfake and how do I spot one?', 'Is it safe to use AI for work documents?', 'How do I set up two-factor authentication?', 'What should I do if I think I have been phished?', 'Can AI be used to steal my identity?'],
+  sw: ['Deepfake ni nini na ninawezaje kuitambua?', 'Je, ni salama kutumia AI kwa nyaraka za kazi?', 'Ninawezaje kuweka two-factor authentication?', 'Nifanye nini nikihisi nimetapeliwa?', 'AI inaweza kutumika kuiba utambulisho wangu?'],
+  ha: ['Menene deepfake kuma yaya zan gane shi?', 'Shin yana da hadari in yi amfani da AI don takardun aiki?', 'Ta yaya zan kunna two-factor authentication?', 'Me zan yi idan na zargi an yi min phishing?', 'AI zai iya taimakawa satar shaidata?'],
+  yo: ['Kini deepfake ati bawo ni mo se le mo o?', 'Se o ni ailewu lati lo AI fun iwe ise?', 'Bawo ni mo se le tan two-factor authentication?', 'Kini mo gbodo se ti mo ba ro pe won ti tan mi?', 'Se AI le ran eniyan lowo lati ji idanimo mi?'],
+  ig: ['Kedu ihe bu deepfake, kedu ka m ga-esi mara ya?', 'O di mma iji AI maka akwukwo oru?', 'Kedu ka m ga-esi tinye two-factor authentication?', 'Gini ka m ga-eme ma oburu na echere m na a phished m?', 'AI nwere ike inyere izu ohi njirimara m?']
+};
+
+let currentLang = 'en';
+let currentProvider = localStorage.getItem('sow_provider') || 'anthropic';
+if (!providerConfigs[currentProvider]) currentProvider = 'anthropic';
+const legacyAnthropicKey = localStorage.getItem('sow_apikey');
+const storedKeys = JSON.parse(localStorage.getItem('sow_api_keys') || '{}');
+if (legacyAnthropicKey && !storedKeys.anthropic) storedKeys.anthropic = legacyAnthropicKey;
+localStorage.setItem('sow_api_keys', JSON.stringify(storedKeys));
+let checkState = JSON.parse(localStorage.getItem('sow_check') || '{}');
+let quizState = { current:0, score:0, answered:false, done:false };
+let tipsExpanded = {};
+let shareTip = null;
+
+const tips = [
+  {
+    id:'inputs', icon:'🧠', color:'rgba(233,69,96,0.15)', accentColor:'#e94560',
+    title:'Mind your inputs',
+    badge:'Privacy', badgeColor:'#e94560',
+    summary:'What you type into AI may be stored, used for training, or leaked.',
+    body:'AI systems process and often store what you type. Some use your conversations to improve future models. Before sharing anything, ask: would I be comfortable if this appeared somewhere else?',
+    tip:'If you wouldn\'t post it on social media, don\'t share it with AI.',
+    examples:['Full name, address, passport or ID numbers','Passwords, PINs, or security answers','Confidential work documents or client data','Medical or financial records','Personal details about other people']
+  },
+  {
+    id:'privacy', icon:'👁️', color:'rgba(0,212,170,0.1)', accentColor:'#00d4aa',
+    title:'Be privacy aware',
+    badge:'Awareness', badgeColor:'#00d4aa',
+    summary:'Your public posts may already be part of AI training data.',
+    body:'Many AI models are trained on publicly available web content. Your social media posts, comments, photos, and public profiles may already exist inside AI training datasets permanently.',
+    tip:'Think carefully about what you share publicly. Would you want an AI to have it forever?',
+    examples:['Review social media privacy settings regularly','Be cautious about sharing your location','Think before posting photos that reveal your home or routine','Understand that deleting content doesn\'t remove it from all archives']
+  },
+  {
+    id:'hackers', icon:'⚠️', color:'rgba(245,166,35,0.1)', accentColor:'#f5a623',
+    title:'How criminals use AI',
+    badge:'Threats', badgeColor:'#f5a623',
+    summary:'AI helps criminals create deepfakes, clone voices, and write convincing scams.',
+    body:'Cybercriminals use AI to launch more targeted attacks. AI can clone voices from seconds of audio, create realistic fake video (deepfakes), and write personalised phishing messages that avoid obvious spelling mistakes.',
+    tip:'Stay alert. The Core 4 behaviours are your best defence against AI-powered attacks.',
+    examples:['Voice cloning — calls that sound exactly like your bank or family member','Deepfake video spreading misinformation or used for harassment','AI-written phishing emails with perfect grammar','Fake customer support impersonating trusted brands']
+  },
+  {
+    id:'tool', icon:'🤝', color:'rgba(83,74,183,0.15)', accentColor:'#534AB7',
+    title:'AI is a tool, not an expert',
+    badge:'Critical thinking', badgeColor:'#a8b2d8',
+    summary:'AI can be confidently wrong. Your judgment is still essential.',
+    body:'AI can help you draft, research, summarise and brainstorm — but it also "hallucinates", producing plausible-sounding but false information. Your verification and expertise remain essential.',
+    tip:'Treat AI as a helpful assistant, not a source of ground truth. Prompting isn\'t the same as creating.',
+    examples:['Always fact-check important claims AI makes','Don\'t submit AI-generated work without reviewing it','Maintain your own skills — don\'t let AI replace your thinking','Be especially sceptical about AI advice on health, law, or finance']
+  }
+];
+
+const checks = [
+  { cat:'Protecting your data', items:[
+    'I avoid entering passwords, financial details, or government IDs into AI tools',
+    "I've checked the privacy policy of AI apps I use regularly",
+    "I don't share colleagues' or clients' confidential information with AI",
+    'I understand that my AI conversations may be stored or used for training'
+  ]},
+  { cat:'Managing your online presence', items:[
+    'My social media accounts have appropriate privacy settings',
+    'I think carefully before posting personal details publicly',
+    "I've reviewed what information about me is easily searchable online"
+  ]},
+  { cat:'Defending against AI-powered threats', items:[
+    'I know what a deepfake is and how to spot warning signs',
+    'I verify unexpected requests (for money or passwords) through a separate channel',
+    'I report phishing attempts to my email provider or IT team'
+  ]},
+  { cat:'Core 4 behaviours', items:[
+    'I use a password manager and unique passwords for every account',
+    'I have MFA enabled on my most important accounts (email, banking, work)',
+    'Automatic software updates are turned on for my devices',
+    'I know how to report a phishing email'
+  ]}
+];
+
+const quizData = [
+  { q:'You receive a voice call from what sounds exactly like your manager asking for an urgent bank transfer. What do you do?',
+    opts:['Transfer the money — it sounds real','Hang up and call your manager back on their known number','Ask a personal question to verify','Reply by text message first'],
+    correct:1, feedback:'Voice cloning AI can replicate anyone\'s voice from just seconds of audio. Always verify urgent requests by calling back on a number you already have — not one given in the suspicious call.' },
+  { q:'Which is safest to share with a public AI chatbot?',
+    opts:['Your company\'s unreleased product plans','A general question about cooking','Your home address for local recommendations','A photo of your passport to fill a form'],
+    correct:1, feedback:'General, non-personal questions are safe for public AI tools. Never share government IDs, exact home addresses, or confidential work information with an AI service you haven\'t thoroughly vetted.' },
+  { q:'An AI tool confidently states a medical fact. What should you do?',
+    opts:['Trust it — AI has access to all medical knowledge','Use it as a starting point, but verify with a qualified professional','Share it with others who have the same symptoms','Ignore it — AI is never accurate on health topics'],
+    correct:1, feedback:'AI models "hallucinate" — they produce confident-sounding but sometimes incorrect information. For health, legal, or financial matters, always verify with a qualified professional.' },
+  { q:'What does multi-factor authentication (MFA) protect you from?',
+    opts:['Malware installed on your device','Someone logging in even if they have your password','Your data being used to train AI models','Phishing emails reaching your inbox'],
+    correct:1, feedback:'MFA adds a second verification step beyond your password — like a code sent to your phone. Even if a criminal steals your password, they still cannot log in without that second factor.' },
+  { q:'A "deepfake" is:',
+    opts:['A fake website designed to steal passwords','AI-generated realistic fake images, audio, or video of real people','A type of AI-written phishing email','A scam involving fake cryptocurrency'],
+    correct:1, feedback:'Deepfakes are AI-generated media that realistically depict people saying or doing things they never did. They\'re used for misinformation, fraud, and online harassment.' },
+  { q:'You accidentally share a confidential client file with an AI chatbot. First step?',
+    opts:['Nothing — AI tools delete data after each session','Check the tool\'s privacy policy and notify your IT or security team','Delete your account to erase the data','Ask the AI to forget what you shared'],
+    correct:1, feedback:'AI services have very different data retention policies. Some store conversations; some use them for model training. Follow your organisation\'s data breach procedure immediately.' }
+];
+
+const scenarios = [
+  {
+    tag:'WhatsApp',
+    title:'Voice note from a “relative” asking for urgent money',
+    body:'A realistic voice note claims a family member is stranded and needs mobile money immediately. The safest move is to pause and verify using a known phone number or another trusted person.',
+    prompt:'Help me respond safely to a suspicious voice note asking for urgent mobile money.'
+  },
+  {
+    tag:'Jobs',
+    title:'AI-written job offer with polished language',
+    body:'The message looks professional and asks for an ID scan, bank details, or upfront processing fees. Treat urgency, secrecy, and payment requests as warning signs.',
+    prompt:'What checks should I do before trusting an online job offer that asks for my ID or money?'
+  },
+  {
+    tag:'Health info',
+    title:'A viral post uses AI images to spread public health misinformation',
+    body:'The images look convincing and people are sharing them quickly in community groups. The right response is to verify with trusted health sources before forwarding anything.',
+    prompt:'How can I verify a viral AI-generated health post before I share it with my community?'
+  }
+];
+
+// ─── RENDER TIPS ─────────────────────────────────────────────────────────────
+
+function buildTips() {
+  const grid = document.getElementById('tipGrid');
+  grid.innerHTML = '';
+  tips.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = 'tip-card' + (tipsExpanded[t.id] ? ' open' : '');
+    card.innerHTML = `
+      <div class="tip-card-accent" style="background:${t.accentColor}"></div>
+      <div class="tip-header">
+        <div class="tip-emoji-wrap">
+          <div class="tip-emoji" style="background:${t.color}">${t.icon}</div>
+          <div class="tip-emoji-ring"></div>
+        </div>
+        <div class="tip-meta">
+          <div class="tip-num">TIP ${String(i+1).padStart(2,'0')}</div>
+          <div class="tip-title">${t.title}</div>
+          <div class="tip-summary">${t.summary}</div>
+        </div>
+        <div class="tip-chevron">⌄</div>
+      </div>
+      <div class="tip-body">
+        <p>${t.body}</p>
+        <div class="tip-callout">
+          <div class="tip-callout-label">KEY TIP</div>
+          <p>${t.tip}</p>
+        </div>
+        <div class="tip-examples">
+          <div class="tip-examples-title">EXAMPLES TO WATCH OUT FOR</div>
+          ${t.examples.map(e => `<div class="tip-example"><div class="tip-example-dot"></div><span>${e}</span></div>`).join('')}
+        </div>
+        <div class="tip-actions">
+          <button class="btn-small btn-teal" onclick="openShare('${t.id}',event)">🔗 Share this tip</button>
+          <button class="btn-small btn-outline" onclick="askAboutTip('${t.title}',event)">🤖 Ask AI more</button>
+        </div>
+      </div>`;
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-small')) return;
+      const wasOpen = card.classList.contains('open');
+      card.classList.toggle('open');
+      tipsExpanded[t.id] = !wasOpen;
+      updateProgress();
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ─── RENDER CHECKLIST ─────────────────────────────────────────────────────────
+
+function buildChecklist() {
+  const c = document.getElementById('checkContainer');
+  let total = 0;
+  let html = '';
+  checks.forEach(group => {
+    html += `<div class="check-section-title">${group.cat}</div>`;
+    group.items.forEach(item => {
+      const id = btoa(encodeURIComponent(item)).slice(0,14);
+      const done = !!checkState[id];
+      total++;
+      html += `<div class="check-item${done?' done':''}" onclick="toggleCheck('${id}',this)">
+        <div class="check-box"><span class="check-tick">✓</span></div>
+        <div class="check-label">${item}</div>
+      </div>`;
+    });
+  });
+  c.innerHTML = html;
+  document.getElementById('stat-total').textContent = total;
+  refreshCheckStats();
+}
+
+function toggleCheck(id, el) {
+  checkState[id] = !checkState[id];
+  el.classList.toggle('done', checkState[id]);
+  localStorage.setItem('sow_check', JSON.stringify(checkState));
+  refreshCheckStats();
+  updateProgress();
+}
+
+function refreshCheckStats() {
+  const total = document.querySelectorAll('.check-item').length;
+  const done = document.querySelectorAll('.check-item.done').length;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pct').textContent = total ? Math.round(done/total*100)+'%' : '0%';
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+
+function buildQuiz() { renderQ(); }
+
+function renderQ() {
+  const c = document.getElementById('quizContainer');
+  if (quizState.done) {
+    const pct = Math.round(quizState.score / quizData.length * 100);
+    const circ = 2 * Math.PI * 48;
+    const dash = circ * (1 - pct/100);
+    const msg = pct >= 80 ? 'Outstanding! You have a strong grasp of AI safety. Share this guide with others.' :
+                pct >= 50 ? 'Good effort! Review the tips where you got stuck and try again.' :
+                'Keep learning! Go through the Tips section, then retry the quiz.';
+    c.innerHTML = `<div class="score-final">
+      <div class="score-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+          <circle cx="60" cy="60" r="48" fill="none" stroke="#00d4aa" stroke-width="8"
+            stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dash.toFixed(1)}" stroke-linecap="round"/>
+        </svg>
+        <div class="score-ring-val">${pct}%</div>
+      </div>
+      <div class="score-title">${quizState.score}/${quizData.length} correct</div>
+      <div class="score-sub" style="margin-bottom:20px">${msg}</div>
+      <button class="btn-main" onclick="restartQuiz()">Try again ↺</button>
+    </div>`;
+    document.getElementById('ps-quiz').classList.add('done');
+    updateProgress();
+    return;
+  }
+  const q = quizData[quizState.current];
+  const letters = ['A','B','C','D'];
+  c.innerHTML = `
+    <div class="quiz-progress">${quizData.map((_,i)=>`<div class="quiz-dot${i<quizState.current?' done':i===quizState.current?' current':''}"></div>`).join('')}</div>
+    <div class="quiz-q-num">Question ${quizState.current+1} of ${quizData.length}</div>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-options">${q.opts.map((o,i)=>`
+      <button class="quiz-opt" onclick="answerQ(${i},this)" id="qo${i}">
+        <div class="opt-letter">${letters[i]}</div>
+        <div class="opt-text">${o}</div>
+      </button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb"></div>
+    <div class="quiz-nav">
+      <span class="quiz-score-display">${quizState.score} correct so far</span>
+      <button class="btn-main" id="qnext" onclick="nextQ()" style="display:none">
+        ${quizState.current===quizData.length-1?'See results →':'Next →'}
+      </button>
+    </div>`;
+}
+
+function answerQ(idx, btn) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  const q = quizData[quizState.current];
+  document.querySelectorAll('.quiz-opt').forEach(o => o.disabled = true);
+  const fb = document.getElementById('qfb');
+  if (idx === q.correct) {
+    btn.classList.add('correct');
+    quizState.score++;
+    fb.className = 'quiz-feedback show good';
+    fb.innerHTML = `<div class="quiz-feedback-icon">✅</div><p>${q.feedback}</p>`;
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('qo'+q.correct).classList.add('correct');
+    fb.className = 'quiz-feedback show bad';
+    fb.innerHTML = `<div class="quiz-feedback-icon">❌</div><p>${q.feedback}</p>`;
+  }
+  document.getElementById('qnext').style.display = 'inline-flex';
+}
+
+function nextQ() {
+  quizState.current++;
+  quizState.answered = false;
+  if (quizState.current >= quizData.length) quizState.done = true;
+  renderQ();
+}
+
+function restartQuiz() {
+  quizState = {current:0,score:0,answered:false,done:false};
+  renderQ();
+}
+
+// ─── AI Q&A ──────────────────────────────────────────────────────────────────
+
+function getCurrentKey() {
+  return storedKeys[currentProvider] || '';
+}
+
+function setProvider(provider, btn) {
+  currentProvider = provider;
+  localStorage.setItem('sow_provider', provider);
+  document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  refreshKeyUi();
+}
+
+function refreshKeyUi() {
+  const cfg = providerConfigs[currentProvider];
+  document.getElementById('providerIntro').textContent = cfg.intro;
+  document.getElementById('apiKeyInput').placeholder = cfg.placeholder;
+  document.getElementById('apiKeyInput').value = getCurrentKey();
+  document.getElementById('apiStatus').textContent = getCurrentKey() ? cfg.saved : cfg.empty;
+}
+
+function saveCurrentKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) return;
+  storedKeys[currentProvider] = val;
+  localStorage.setItem('sow_api_keys', JSON.stringify(storedKeys));
+  refreshKeyUi();
+  showNotif(providerConfigs[currentProvider].label + ' key saved');
+}
+
+function clearCurrentKey() {
+  delete storedKeys[currentProvider];
+  localStorage.setItem('sow_api_keys', JSON.stringify(storedKeys));
+  document.getElementById('apiKeyInput').value = '';
+  refreshKeyUi();
+  showNotif(providerConfigs[currentProvider].label + ' key removed');
+}
+
+function buildSuggestions() {
+  const list = localizedSuggestions[currentLang] || localizedSuggestions.en;
+  const s = document.getElementById('qaSuggestions');
+  s.innerHTML = list.slice(0,5).map(q => `<button class="qa-suggest" onclick="useSuggestion(this)">${q}</button>`).join('');
+}
+
+function buildScenarios() {
+  const grid = document.getElementById('scenarioGrid');
+  grid.innerHTML = scenarios.map((scenario, index) => `
+    <div class="scenario-card">
+      <div class="scenario-tag">${scenario.tag}</div>
+      <h4>${scenario.title}</h4>
+      <p>${scenario.body}</p>
+      <button class="btn-small btn-teal" onclick="launchScenario(${index})">🤖 Ask AI about this</button>
+    </div>
+  `).join('');
+}
+
+function launchScenario(index) {
+  const scenario = scenarios[index];
+  showTab('ai', document.querySelectorAll('.nav-btn')[3]);
+  setTimeout(() => {
+    document.getElementById('qaInput').value = scenario.prompt;
+    sendMsg();
+  }, 250);
+}
+
+function useSuggestion(el) {
+  document.getElementById('qaInput').value = el.textContent;
+  sendMsg();
+}
+
+function buildSystemPrompt() {
+  const langNames = {
+    en:'English', fr:'French', es:'Spanish', de:'German', ar:'Arabic', zh:'Chinese', pt:'Portuguese',
+    sw:'Swahili', ha:'Hausa', yo:'Yoruba', ig:'Igbo'
+  };
+  return `You are a friendly AI safety and cyber hygiene guide inside an education app called "AI Safety Guide". Help with deepfakes, phishing, privacy, passwords, MFA, misinformation, scam spotting, and safe use of AI tools. Keep answers concise, practical, and easy to understand. Where relevant, include Africa-relevant examples such as WhatsApp scams, mobile money fraud, public health misinformation, and job scams. Reply in ${langNames[currentLang] || 'English'} unless the user clearly asks for another language. Do not provide harmful instructions.`;
+}
+
+function getProviderErrorText() {
+  return `There was an error connecting to ${providerConfigs[currentProvider].label}. Please check your API key and try again.`;
+}
+
+function getChatMessagesForOpenAI() {
+  return [
+    { role:'system', content:buildSystemPrompt() },
+    ...chatHistory.map(msg => ({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content }))
+  ];
+}
+
+function getChatMessagesForAnthropic() {
+  return chatHistory.map(msg => ({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content }));
+}
+
+function getChatMessagesForGemini() {
+  return chatHistory.map(msg => ({
+    role: msg.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: msg.content }]
+  }));
+}
+
+async function fetchProviderReply() {
+  const apiKey = getCurrentKey();
+  if (currentProvider === 'anthropic') {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:800,
+        system:buildSystemPrompt(),
+        messages:getChatMessagesForAnthropic()
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'Anthropic error');
+    return data.content.find(block => block.type === 'text')?.text || 'I could not generate a response. Please try again.';
+  }
+
+  if (currentProvider === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + apiKey},
+      body:JSON.stringify({
+        model:'gpt-4.1-mini',
+        messages:getChatMessagesForOpenAI(),
+        max_tokens:700,
+        temperature:0.4
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'OpenAI error');
+    return data.choices?.[0]?.message?.content || 'I could not generate a response. Please try again.';
+  }
+
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      system_instruction: { parts: [{ text: buildSystemPrompt() }] },
+      contents: getChatMessagesForGemini()
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error?.message || 'Gemini error');
+  return data.candidates?.[0]?.content?.parts?.map(part => part.text).join('\n').trim() || 'I could not generate a response. Please try again.';
+}
+
+async function runSinglePrompt(prompt, maxTokens) {
+  const priorHistory = chatHistory.slice();
+  chatHistory = [{ role:'user', content:prompt }];
+  try {
+    if (currentProvider === 'anthropic') {
+      const apiKey = getCurrentKey();
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:maxTokens,
+          system:buildSystemPrompt(),
+          messages:getChatMessagesForAnthropic()
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || 'Anthropic error');
+      return data.content.find(block => block.type === 'text')?.text || '';
+    }
+
+    if (currentProvider === 'openai') {
+      const apiKey = getCurrentKey();
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer ' + apiKey},
+        body:JSON.stringify({
+          model:'gpt-4.1-mini',
+          messages:[
+            { role:'system', content:buildSystemPrompt() },
+            { role:'user', content:prompt }
+          ],
+          max_tokens:maxTokens,
+          temperature:0.4
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || 'OpenAI error');
+      return data.choices?.[0]?.message?.content || '';
+    }
+
+    const apiKey = getCurrentKey();
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system_instruction: { parts: [{ text: buildSystemPrompt() }] },
+        contents:[{ role:'user', parts:[{ text:prompt }] }]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'Gemini error');
+    return data.candidates?.[0]?.content?.parts?.map(part => part.text).join('\n').trim() || '';
+  } finally {
+    chatHistory = priorHistory;
+  }
+}
+
+let chatHistory = [];
+
+async function sendMsg() {
+  const input = document.getElementById('qaInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  if (!getCurrentKey()) { showNotif('Add a ' + providerConfigs[currentProvider].label + ' key first'); return; }
+
+  input.value = '';
+  appendMsg('user', msg);
+  chatHistory.push({role:'user', content:msg});
+
+  const btn = document.getElementById('qaSendBtn');
+  btn.disabled = true;
+  const typingEl = appendTyping();
+
+  try {
+    const reply = await fetchProviderReply();
+    typingEl.remove();
+    chatHistory.push({role:'assistant', content:reply});
+    appendMsg('ai', reply);
+  } catch(e) {
+    typingEl.remove();
+    appendMsg('ai', getProviderErrorText());
+  }
+  btn.disabled = false;
+}
+
+function appendMsg(role, text) {
+  const area = document.getElementById('chatArea');
+  const el = document.createElement('div');
+  el.className = `msg ${role}`;
+  el.innerHTML = `<div class="msg-avatar ${role}-av">${role==='user'?'👤':'🤖'}</div><div class="msg-bubble">${escHtml(text)}</div>`;
+  area.appendChild(el);
+  area.scrollTop = area.scrollHeight;
+  return el;
+}
+
+function appendTyping() {
+  const area = document.getElementById('chatArea');
+  const el = document.createElement('div');
+  el.className = 'msg ai';
+  el.innerHTML = `<div class="msg-avatar ai-av">🤖</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  area.appendChild(el);
+  area.scrollTop = area.scrollHeight;
+  return el;
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function askAboutTip(title, e) {
+  e.stopPropagation();
+  showTab('ai', document.querySelectorAll('.nav-btn')[3]);
+  setTimeout(()=>{
+    document.getElementById('qaInput').value = `Can you tell me more about: ${title}?`;
+    sendMsg();
+  }, 300);
+}
+
+// ─── SHARE ────────────────────────────────────────────────────────────────────
+
+const shareColors = { inputs:'#e94560', privacy:'#00d4aa', hackers:'#f5a623', tool:'#534AB7' };
+
+function openShare(tipId, e) {
+  e.stopPropagation();
+  shareTip = tips.find(t=>t.id===tipId);
+  if (!shareTip) return;
+  const modal = document.getElementById('shareModal');
+  const prev = document.getElementById('sharePreview');
+  prev.style.background = shareColors[tipId] || '#1a1a2e';
+  document.getElementById('shareTitle').textContent = shareTip.icon + ' ' + shareTip.title;
+  document.getElementById('shareBody').textContent = shareTip.tip;
+  document.getElementById('shareTag').textContent = '🛡️ AI Safety Guide · SecureOurWorld';
+  modal.classList.add('open');
+}
+
+function closeShare() { document.getElementById('shareModal').classList.remove('open'); }
+
+function getShareText() {
+  if (!shareTip) return '';
+  return `${shareTip.icon} AI Safety Tip: ${shareTip.title}\n\n${shareTip.tip}\n\n🛡️ Learn more: cisa.gov/SecureOurWorld\n#SecureOurWorld #AISafety #Cybersecurity`;
+}
+
+function copyShareText() {
+  navigator.clipboard.writeText(getShareText()).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Copy text';btn.classList.remove('copied');},2000);
+  });
+}
+
+function shareToX() {
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(getShareText()),'_blank');
+}
+function shareToLinkedIn() {
+  window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent('https://cisa.gov/SecureOurWorld'),'_blank');
+}
+function shareToWhatsApp() {
+  window.open('https://wa.me/?text='+encodeURIComponent(getShareText()),'_blank');
+}
+
+// ─── TRAINER ─────────────────────────────────────────────────────────────────
+
+const sessionPlans = [
+  { title:'Session 1 — Introduction to AI Safety (30 min)', duration:'30 min', level:'Beginner' },
+  { title:'Session 2 — Recognising AI-Powered Threats (45 min)', duration:'45 min', level:'Intermediate' },
+  { title:'Session 3 — Core 4 Behaviours Workshop (60 min)', duration:'60 min', level:'Hands-on' }
+];
+
+function downloadSession(n) {
+  const s = sessionPlans[n-1];
+  const content = `AI SAFETY WORKSHOP — ${s.title}\nLevel: ${s.level} | Duration: ${s.duration}\n\nFacilitator Notes:\n==================\n\nOBJECTIVES:\n• Participants understand key AI safety risks\n• Participants can name at least 2 protective behaviours\n• Participants leave with at least one action to take\n\nAGENDA:\n1. Welcome & icebreaker (5 min)\n2. Core content (${s.duration.replace(' min','') - 10} min)\n3. Group discussion (5 min)\n4. Action planning (5 min)\n\nKEY MESSAGES:\n• Mind your inputs — don't share sensitive data with AI\n• Be privacy aware — your public posts may be AI training data\n• Criminals use AI — stay alert to deepfakes and phishing\n• Use the Core 4: passwords, MFA, updates, phishing awareness\n\nDISCUSSION QUESTIONS:\n1. Has anyone experienced a suspicious phone call or email recently?\n2. What personal information do you share with AI tools?\n3. What one change will you make after today's session?\n\nRESOURCES:\n• cisa.gov/SecureOurWorld\n• AI Safety Guide App: Share this QR code\n\nGenerated by AI Safety Guide App`;
+  const blob = new Blob([content], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Session_${n}_AI_Safety_Workshop.txt`;
+  a.click();
+  showNotif('Session plan downloaded!');
+}
+
+async function generateFacilitatorNotes(n) {
+  if (!getCurrentKey()) { showNotif('Add your API key in the Ask AI tab first'); return; }
+  const s = sessionPlans[n-1];
+  showNotif('Generating facilitator notes...');
+  try {
+    const text = await runSinglePrompt(`Create concise facilitator notes for an AI safety workshop: "${s.title}". Include: opening hook, 3 key talking points, one activity/exercise, common questions participants ask, and a closing call-to-action. Base it on CISA's Secure Our World guidance. Keep it practical and plain-language for a non-technical facilitator.`, 1000);
+    if (text) {
+      const blob = new Blob([text], {type:'text/plain'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Facilitator_Notes_Session_${n}.txt`;
+      a.click();
+      showNotif('Facilitator notes downloaded!');
+    }
+  } catch(e) { showNotif('Error generating notes'); }
+}
+
+async function generateCustomSession() {
+  const desc = document.getElementById('customSession').value.trim();
+  if (!desc) { showNotif('Please describe your audience and goals first'); return; }
+  if (!getCurrentKey()) { showNotif('Add your API key in the Ask AI tab first'); return; }
+  showNotif('Generating custom session plan...');
+  try {
+    const text = await runSinglePrompt(`Create a detailed AI safety workshop session plan for: "${desc}". Include: session title, objectives, timed agenda, facilitator notes for each section, interactive activities, discussion questions, key safety messages tailored to this audience, and handout suggestions. Base content on CISA's Secure Our World AI safety guidance. Make it practical and ready to run.`, 1200);
+    if (text) {
+      const blob = new Blob([text], {type:'text/plain'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Custom_AI_Safety_Session.txt';
+      a.click();
+      showNotif('Custom session downloaded!');
+    }
+  } catch(e) { showNotif('Error generating session'); }
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
+
+function updateProgress() {
+  const totalChecks = checks.reduce((a,g)=>a+g.items.length,0);
+  const doneChecks = Object.values(checkState).filter(Boolean).length;
+  const tipsOpen = Object.values(tipsExpanded).filter(Boolean).length;
+  const quizDone = quizState.done ? 1 : 0;
+  const score = Math.round(
+    (tipsOpen / tips.length) * 30 +
+    (doneChecks / totalChecks) * 40 +
+    quizDone * 30
+  );
+  document.getElementById('prog-fill').style.width = Math.min(score,100) + '%';
+  document.getElementById('prog-pct').textContent = score + '%';
+  if (tipsOpen >= tips.length) document.getElementById('ps-tips').classList.add('done');
+  if (doneChecks >= totalChecks) document.getElementById('ps-check').classList.add('done');
+}
+
+// ─── LANGUAGE ─────────────────────────────────────────────────────────────────
+
+function setLang(lang, btn) {
+  currentLang = lang;
+  localStorage.setItem('sow_lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const t = i18n[lang] || i18n.en;
+  const h1 = document.getElementById('hero-title');
+  const sub = document.getElementById('hero-sub');
+  const pt = document.getElementById('prog-title');
+  if (h1) h1.textContent = t.hero_title;
+  if (sub) sub.textContent = t.hero_sub;
+  if (pt) pt.textContent = t.prog_title;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (t[k]) el.textContent = t[k];
+  });
+  document.getElementById('qaInput').placeholder = t.nav_ai ? `${t.nav_ai}...` : 'Ask a question about AI safety...';
+  document.getElementById('welcomeBubble').textContent = t.nav_ai === 'Uliza AI'
+    ? 'Habari! Mimi ni msaidizi wako wa usalama wa AI. Uliza swali lolote kuhusu deepfake, faragha ya data, phishing, nywila, au matumizi salama ya AI.'
+    : t.nav_ai === 'Tambayi AI'
+    ? 'Sannu! Ni ne mataimakin jagorar tsaron AI naka. Ka tambaye ni duk wata tambaya game da deepfake, sirri, phishing, kalmomin shiga, ko amfani da AI cikin tsaro.'
+    : t.nav_ai === 'Beere AI'
+    ? 'Pele! Emi ni oluranlọwọ Itosona Aabo AI rẹ. Beere ibeere eyikeyi nipa deepfake, asiri data, phishing, ọrọigbaniwọle, tabi lilo AI lailewu.'
+    : t.nav_ai === 'Jụọ AI'
+    ? 'Ndewo! Abụ m onye enyemaka nduzi nchekwa AI gị. Jụọ m ajụjụ ọ bụla gbasara deepfake, nzuzo data, phishing, okwuntughe, ma ọ bụ iji AI n\'ụzọ nchekwa.'
+    : 'Hello! I\'m your AI Safety Guide assistant. Ask me anything about staying safe when using AI tools online — deepfakes, data privacy, phishing, passwords, or anything else from this guide. What would you like to know?';
+  buildSuggestions();
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+}
+
+// ─── TAB NAV ─────────────────────────────────────────────────────────────────
+
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+
+function showNotif(msg) {
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 2500);
+}
+
+// Enter key for chat
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('qaInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+  });
+});
+
+// Close modal on overlay click
+document.getElementById('shareModal').addEventListener('click', function(e) {
+  if (e.target === this) closeShare();
+});
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+buildTips();
+buildChecklist();
+buildQuiz();
+buildScenarios();
+updateProgress();
+refreshKeyUi();
+const savedLang = localStorage.getItem('sow_lang') || 'en';
+const langBtn = Array.from(document.querySelectorAll('.lang-btn')).find(btn => btn.getAttribute('onclick').includes(`'${savedLang}'`));
+setLang(savedLang, langBtn || document.querySelector('.lang-btn'));
+const providerBtn = Array.from(document.querySelectorAll('.provider-btn')).find(btn => btn.getAttribute('onclick').includes(`'${currentProvider}'`));
+setProvider(currentProvider, providerBtn || document.querySelector('.provider-btn'));
+</script>
+</body>
+</html>
